@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  wallets   Wallet[]
+  createdAt DateTime @default(now())
+}
+
+model AssetType {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  wallets   Wallet[]
+  createdAt DateTime @default(now())
+}
+
+model Wallet {
+  id          String      @id @default(uuid())
+  userId      String?
+  assetTypeId String
+  name        String?
+  isSystem    Boolean     @default(false)
+
+  user        User?       @relation(fields: [userId], references: [id])
+  assetType   AssetType   @relation(fields: [assetTypeId], references: [id])
+  ledger      LedgerEntry[]
+
+  createdAt   DateTime    @default(now())
+
+  @@unique([userId, assetTypeId])     // one wallet per asset per user
+  @@index([userId])
+}
+
+model LedgerEntry {
+  id            String      @id @default(uuid())
+  transactionId String
+  walletId      String
+
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  wallet        Wallet      @relation(fields: [walletId], references: [id])
+
+  amount        Int
+  entryType     LedgerType
+
+  createdAt     DateTime    @default(now())
+
+  @@index([walletId])
+  @@index([transactionId])
+}
+
+model Transaction {
+  id             String        @id @default(uuid())
+  idempotencyKey String?       @unique
+  type           TransactionType
+  ledgerEntries  LedgerEntry[]
+  createdAt      DateTime      @default(now())
+}
+
+enum LedgerType {
+  DEBIT
+  CREDIT
+}
+
+enum TransactionType {
+  TOP_UP
+  BONUS
+  SPEND
+  TRANSFER
+}
