@@ -48,7 +48,7 @@ export async function POST(req) {
       const treasuryWallet = await tx.wallet.findFirst({
         where: {
           assetTypeId: asset.id,
-          isSystem: true
+          userId: null
         }
       })
 

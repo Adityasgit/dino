@@ -11,6 +11,7 @@ export default function Home() {
   const [user, setUser] = useState(null)
   const [showAuth, setShowAuth] = useState(null)
   const [transactions, setTransactions] = useState([])
+  const [transactionsLoading, setTransactionsLoading] = useState(false)
   const [resources, setResources] = useState([])
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function Home() {
   }, [user])
 
   async function fetchTransactions() {
+    setTransactionsLoading(true)
     const res = await fetch(
       user
         ? `/api/transaction/history?userId=${user.id}`
@@ -30,6 +32,7 @@ export default function Home() {
     )
     const data = await res.json()
     setTransactions(data)
+    setTransactionsLoading(false)
   }
 
   async function fetchUser() {
@@ -79,6 +82,15 @@ export default function Home() {
 
       {/* Resource Bar */}
       {user && <ResourceBar resources={resources} />}
+      {
+        !user && (
+          <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 max-w-7xl mx-auto mt-6">
+            <p className="text-center text-zinc-400">
+              Please login to view your resources and transactions.
+            </p>
+          </div>
+        )
+      }
 
       <div className="mt-10 px-6">
         {user ? (
@@ -99,7 +111,7 @@ export default function Home() {
             {/* Right - Transactions */}
             <div className="lg:col-span-1">
               <h2 className="text-xl font-bold text-yellow-400 mb-4">Transactions</h2>
-              <TransactionTabs transactions={transactions} />
+              <TransactionTabs system={false} transactions={transactions} loading={transactionsLoading} />
             </div>
 
           </div>
@@ -108,12 +120,9 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-yellow-400 mb-4">
               Welcome to DinoVault 🦖 - SYSTEM HISTORY
-            </h2>
-            <p className="text-zinc-400 mb-6">
-              Please login or signup to view your transactions and access the shop.
-            </p>
-            
-            <TransactionTabs transactions={transactions} />
+            </h2>            
+
+            <TransactionTabs system={true} transactions={transactions} loading={transactionsLoading} />
           </div>
         )}
       </div>
