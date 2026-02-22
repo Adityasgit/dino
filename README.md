@@ -43,7 +43,7 @@ The Next.js application image is already uploaded to Docker Hub:
 ### Step 1 -- Clone the Repository
 
 ``` bash
-git clone <your-repository-url>
+git clone https://github.com/Adityasgit/dino
 cd dino
 ```
 
